@@ -6,7 +6,7 @@ import datetime
 import json
 
 # --- 페이지 기본 설정 ---
-st.set_page_config(page_title="👑 실시간 여행 작전 보드", page_icon="👑", layout="wide")
+st.set_page_config(page_title="실시간 여행 작전 보드", page_icon="👑", layout="wide")
 
 try:
     creds_json_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
