@@ -1,5 +1,3 @@
-# trip_planner_realtime.py (진짜진짜 최종본)
-
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -8,12 +6,13 @@ import datetime
 import json
 
 # --- 페이지 기본 설정 ---
-st.set_page_config(page_title="실시간 여행 작전 보드", page_icon="👑", layout="wide")
+st.set_page_config(page_title="👑 실시간 여행 작전 보드", page_icon="👑", layout="wide")
 
 # --- Firebase 연결 (줄바꿈 오류 해결!) ---
 try:
     creds_json_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
-    creds_dict = json.loads(creds_json_str)
+    creds_json_str_escaped = creds_json_str.replace('\n', '\\n')
+    creds_dict = json.loads(creds_json_str_escaped)
 
     if not firebase_admin._apps:
         cred = credentials.Certificate(creds_dict)
