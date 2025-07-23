@@ -1,3 +1,5 @@
+# trip_planner_realtime.py (클라우드 배포 최종판)
+
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -6,15 +8,21 @@ import datetime
 import json
 
 # --- 페이지 기본 설정 ---
-st.set_page_config(page_title="실시간 여행 작전 보드", page_icon="👑", layout="wide")
+st.set_page_config(page_title="👑 실시간 여행 작전 보드", page_icon="👑", layout="wide")
 
+# --- Firebase 연결 (클라우드 Secrets 사용!) ---
 try:
+    # Streamlit Cloud의 Secrets에서 값을 가져옴
     creds_json_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
 
+    # --- 우리가 알아낸 모든 문제 해결책 ---
+    # 1. 앞/뒤의 불필요한 공백/줄바꿈 제거
     cleaned_str = creds_json_str.strip()
     
+    # 2. 키 내부의 줄바꿈(\n)을 JSON이 이해하도록 처리
     escaped_str = cleaned_str.replace('\n', '\\n')
     
+    # 3. 완벽하게 깨끗해진 문자열을 최종 변환
     creds_dict = json.loads(escaped_str)
 
     if not firebase_admin._apps:
