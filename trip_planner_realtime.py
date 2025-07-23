@@ -1,73 +1,27 @@
-import streamlit as st
-import firebase_admin
-from firebase_admin import credentials, firestore
-from streamlit_calendar import calendar
-import datetime
-import json
+# detective_code_v2.py
 
-# --- 페이지 기본 설정 ---
-st.set_page_config(page_title="실시간 여행 작전 보드", page_icon="👑", layout="wide")
+import streamlit as st
+
+st.set_page_config(page_title="🕵️‍♀️ 비밀 키 정밀 탐정", layout="wide")
+st.title("🕵️‍♀️ 비밀 키 정밀 탐정 모드")
+st.write("---")
+
+st.write("Streamlit Cloud의 Secrets에 저장된 'GOOGLE_APPLICATION_CREDENTIALS' 값을 정밀 분석합니다.")
+st.info("이 작업은 문제 해결을 위한 일시적인 단계이며, 해결 즉시 원래 코드로 복구할 것입니다.")
 
 try:
-    creds_json_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
+    # Secrets에서 값을 문자열로 그대로 가져옴
+    secret_value = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
+    
+    st.success("Secrets 값을 성공적으로 불러왔습니다! 아래 내용을 분석해주세요.")
+    
+    st.write("### 1. 앱이 보는 그대로의 값 (Raw Text)")
+    st.text(secret_value)
 
-    cleaned_str = creds_json_str.strip()
+    st.write("### 2. 컴퓨터가 이해하는 내부 표현 (Representation)")
+    st.code(repr(secret_value), language="python")
 
-    escaped_str = cleaned_str.replace('\n', '\\n')
-
-    creds_dict = json.loads(escaped_str)
-
-    if not firebase_admin._apps:
-        cred = credentials.Certificate(creds_dict)
-        firebase_admin.initialize_app(cred)
 
 except Exception as e:
-    st.error("앗! Firebase 연결에 실패했어요. Streamlit Cloud의 Secrets 설정을 다시 확인해주세요.")
-    st.error(f"자세한 오류: {e}")
-    st.stop()
-
-# Firestore 클라이언트 초기화
-db = firestore.client()
-events_ref = db.collection('schedules')
-
-# --- 함수 정의 ---
-def load_events():
-    docs = events_ref.stream()
-    return [doc.to_dict() for doc in docs]
-
-# --- 사이드바 UI ---
-with st.sidebar:
-    st.header("✨ 작전 준비")
-    st.subheader("🗓️ '안 되는 날' 표시하기")
-    
-    selected_user = st.text_input("이름을 적어주세요", placeholder="예: 케이")
-    unavailable_date = st.date_input("안 되는 날짜", datetime.date.today())
-    
-    if st.button("❌ 달력에 표시하기"):
-        if not selected_user:
-            st.warning("이름을 꼭 적어주셔야 해요!")
-        else:
-            event_id = f"{unavailable_date.isoformat()}-{selected_user}"
-            event_doc = events_ref.document(event_id)
-            
-            if event_doc.get().exists:
-                st.warning(f"{selected_user}님은 해당 날짜에 이미 안된다고 표시했어요!")
-            else:
-                new_event = {
-                    "title": f"❌ {selected_user}", "color": "#FF6F6F",
-                    "start": str(unavailable_date), "end": str(unavailable_date),
-                    "allDay": True,
-                }
-                event_doc.set(new_event)
-                st.success(f"{selected_user}님의 안 되는 날을 표시했어요!")
-                st.rerun()
-
-# --- 메인 화면 ---
-st.title("👑 실시간 여행 작전 보드")
-st.markdown("모두의 '안 되는 날'을 실시간으로 확인해요!")
-
-events = load_events()
-calendar(events=events, options={"locale": "ko"})
-
-if st.button("🔄 새로고침"):
-    st.rerun()
+    st.error("Secrets 값을 불러오는 데 실패했습니다.")
+    st.error(f"오류 내용: {e}")
